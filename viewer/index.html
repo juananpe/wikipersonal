@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Personas · Directorio</title>
+  <link rel="stylesheet" href="/style.css">
+  <script defer src="/vendor/marked-marked.umd.js"></script>
+  <script defer src="/vendor/dompurify-purify.min.js"></script>
+  <script defer src="/app.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="#">p<span>·</span> <strong>Personas</strong></a>
+    <p class="eyebrow">TU DIRECTORIO DE CONTEXTO</p>
+    <label for="search">Buscar en los perfiles</label>
+    <input id="search" type="search" placeholder="Nombre, proyecto, organización…" autocomplete="off">
+    <p id="count" class="muted" aria-live="polite"></p>
+    <nav id="profiles" aria-label="Personas"></nav>
+    <p class="sidebar-footer">Siempre desde tus Markdown.<br><span id="reload-status">Actualiza los archivos y recarga.</span></p>
+  </aside>
+  <main id="main">
+    <header class="toolbar"><span id="breadcrumb">Directorio</span><a id="source" hidden target="_blank" rel="noopener">Ver Markdown ↗</a></header>
+    <div class="reading-layout">
+      <article id="content" class="markdown" aria-live="polite"><p>Cargando perfiles…</p></article>
+      <aside id="outline"><p class="eyebrow">EN ESTA FICHA</p><nav id="toc" aria-label="Secciones"></nav></aside>
+    </div>
+  </main>
+</body>
+</html>
