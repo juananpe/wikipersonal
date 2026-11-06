@@ -18,6 +18,16 @@ Abre <http://127.0.0.1:8765>. Para elegir otro puerto:
 python3 serve.py --reload --port 9000
 ```
 
+Las fichas se leen de la carpeta indicada en `PEOPLE_FOLDER` del archivo `.env`
+(copia `.env.example` a `.env`). Por ejemplo:
+
+```sh
+PEOPLE_FOLDER=/opt/people
+```
+
+Si no se define, se usan las fichas dentro de este repositorio. Una variable de
+entorno del shell tiene prioridad sobre `.env`.
+
 Detén el servidor con `Ctrl+C`. La interfaz necesita el servidor; no se abre
 directamente haciendo doble clic en `index.html`.
 

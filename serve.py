@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import mimetypes
+import os
 import re
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -13,18 +14,33 @@ ROOT = Path(__file__).resolve().parent
 VIEWER = ROOT / 'viewer'
 
 
+def load_env(path):
+    if not path.is_file():
+        return
+    for line in path.read_text(encoding='utf-8').splitlines():
+        line = line.strip()
+        if not line or line.startswith('#') or '=' not in line:
+            continue
+        key, value = line.split('=', 1)
+        os.environ.setdefault(key.strip(), value.strip().strip('"\''))
+
+
+load_env(ROOT / '.env')
+PEOPLE = Path(os.environ.get('PEOPLE_FOLDER') or ROOT).expanduser().resolve()
+
+
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         route = unquote(urlsplit(self.path).path)
         if route == '/api/revision':
             digest = hashlib.sha256()
             # Content hashes also detect additions, removals and atomic editor saves.
-            paths = list(ROOT.glob('*/*.md')) + list(VIEWER.glob('*.js')) + list(VIEWER.glob('*.css')) + list(VIEWER.glob('*.html'))
+            paths = list(PEOPLE.glob('*/*.md')) + list(VIEWER.glob('*.js')) + list(VIEWER.glob('*.css')) + list(VIEWER.glob('*.html'))
             for path in sorted(paths):
                 if path.is_symlink() or path.parent.is_symlink():
                     continue
                 try:
-                    digest.update(str(path.relative_to(ROOT)).encode())
+                    digest.update(str(path).encode())
                     digest.update(path.read_bytes())
                 except FileNotFoundError:
                     continue
@@ -32,7 +48,7 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_content(payload, 'application/json; charset=utf-8')
         if route == '/api/profiles':
             profiles = []
-            for path in ROOT.glob('*/info.md'):
+            for path in PEOPLE.glob('*/info.md'):
                 if path.is_symlink() or path.parent.is_symlink():
                     continue
                 content = path.read_text(encoding='utf-8')
@@ -47,10 +63,10 @@ class Handler(BaseHTTPRequestHandler):
         path = (VIEWER / relative).resolve()
         allowed = path.is_relative_to(VIEWER.resolve()) and path.is_file()
         if not allowed:
-            path = (ROOT / relative).resolve()
+            path = (PEOPLE / relative).resolve()
             parts = Path(relative).parts
             allowed = (len(parts) >= 2 and not any(p.startswith('.') for p in parts)
-                       and path.is_relative_to(ROOT) and (ROOT / parts[0] / 'info.md').is_file()
+                       and path.is_relative_to(PEOPLE) and (PEOPLE / parts[0] / 'info.md').is_file()
                        and path.is_file() and path.suffix.lower() in {'.md', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.pdf'})
         if not allowed:
             self.send_error(404, 'Archivo no encontrado')
